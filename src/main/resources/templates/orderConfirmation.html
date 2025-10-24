@@ -102,11 +102,11 @@
                     <input type="hidden" id="customerName" th:value="${order.customer.name}">
                     <input type="hidden" id="customerEmail" th:value="${order.customer.mail}">
                     <input type="hidden" id="customerPhone" th:value="${order.customer.phone}">
-
+                    <button id="btnPay" type="button">결제하기(<span th:text="${order.grandTotal}"></span>원)
+                    </button>
                 </div>
-                <a href="/BookMarket/order/orderShippingInfo"  class=" btn btn-Secondary" role="button" >이전</a>
-                <button id="btnPay" type="button">결제하기(<span th:text="${order.grandTotal}"></span>원)
-                </button>
+
+
                 <a href="/BookMarket/order/orderCancelled"  class="btn btn-Secondary" role="button" >취소</a>
             </div>
     </form>
