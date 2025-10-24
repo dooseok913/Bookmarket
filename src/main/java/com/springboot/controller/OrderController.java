@@ -58,6 +58,18 @@ public class OrderController {
         order.setShipping(new Shipping());
         order.setGrandTotal(cart.getGrandTotal());
 
+
+        Shipping shipping = new Shipping();
+        Address address = new Address();
+        address.setCountry("대한민국");
+        address.setZipcode("000000");
+        shipping.setAddress(address);
+
+        order.setCustomer(new Customer());
+        order.setShipping(shipping);
+        order.setGrandTotal(cart.getGrandTotal());
+
+
         return  "redirect:/order/orderCustomerInfo";
 
 

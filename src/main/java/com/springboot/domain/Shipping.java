@@ -24,10 +24,7 @@ public class Shipping {
     @JoinColumn(name = "address_id")
     private Address address = new Address();
 
-    public Shipping() {
-        if(this.address == null) {
-        this.address = new Address();
-        }
+
     }
 
-}
+

@@ -17,10 +17,10 @@ public class Address {
     @GeneratedValue
     private Long id;
 
-//    @NotEmpty
+    @NotEmpty
     private String country;
 
-//    @NotEmpty
+    @NotEmpty
     private String zipcode;
 
 
