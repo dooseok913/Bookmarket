@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.repository.mybatis.ShippingMapper">
+    <select id="findShippingById"  parameterType="Long"  resultType="com.springboot.domain.Shipping">
+        select * from shipping where id =#{id}
+    </select>
+
+    <insert id="insertShipping"  parameterType="com.springboot.domain.Shipping" >
+        insert into shipping (date, name)  values (#{date}, #{name})
+    </insert>
+    <update id="updateShipping" parameterType="com.springboot.domain.Shipping">
+        update  shipping   set name=#{name}, date=#{date}  where id = #{id}
+    </update>
+    <delete id="deleteShipping" parameterType="Long">
+        delete from shipping where id = #{id}
+
+    </delete>
+
+
+</mapper>
