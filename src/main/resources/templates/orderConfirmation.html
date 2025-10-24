@@ -2,18 +2,12 @@
 <head> 	
 	<title>주문 정보</title>
 	<link href="/BookMarket/css/bootstrap.min.css" rel="stylesheet" >
+    <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
 </head>
 <body>
 <div class="container py-4">
     <th:block th:replace="~{/module/header}"></th:block>
-<!--	<header class="pb-3 mb-4 border-bottom">  -->
-<!--		<a href="/BookMarket/home" class="d-flex align-items-center text-body-emphasis text-decoration-none">-->
-<!--			<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-book-half me-2" viewBox="0 0 16 16">-->
-<!--				<path d="M8.5 2.687c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/>-->
-<!--			</svg>-->
-<!--			<span class="fs-4">BookMarket</span>-->
-<!--		</a>-->
-<!--	</header>-->
+
 
 	<div class="p-5 mb-4 bg-body-tertiary rounded-3">
  		<div class="container-fluid py-5">
@@ -24,7 +18,7 @@
 	</div>	
    <div class="row align-items-md-stretch"> 
     <form th:object="${order}" action="/BookMarket/order/orderConfirmation" method="post" class="form-horizontal">
-    <div class="container  col-md-10  py-5" style="background:#fafafe">
+        <div class="container  col-md-10  py-5" style="background:#fafafe">
        <div class="text-center">
           	<h1>영수증</h1>
        </div>   
@@ -54,98 +48,145 @@
           </div>
        </div>  
       
-       <div class="row  py-2">
-          <table class="table table-hover">
-          <thead>
-           <tr><th>도서</th>
-              <th>수량</th>
-              <th class="text-center">가격</th>
-               <th class="text-center">소계</th>
-            </tr>
-            </thead>
-             <tbody>
-          
-            <div class="col-md-4" th:each="cartItem:${order.orderItems}">   
-               
-             <tr>                                 	
-                	 
-                <td >  
-               	 <em th:each="book:${bookList}" th:if="${book != null and cartItem != null and
-               	 #strings.equals(book.bookId, cartItem.value.bookId)}">[[${book.name}]]</em>
+           <div class="row  py-2">
+              <table class="table table-hover">
+                 <thead>
+                   <tr><th>도서</th>
+                      <th>수량</th>
+                      <th class="text-center">가격</th>
+                       <th class="text-center">소계</th>
+                    </tr>
+                 </thead>
+                 <tbody>
 
-                </td>
-              
-               <td  style="text-align: center">[[${cartItem.value.quantity}]]</td>              	
-               <td class="text-center" >
-               	  <span th:each="book:${bookList}"  th:if="${#strings.equals(book.bookId, cartItem.value.bookId)}">[[${book.unitPrice}]]원</span> 
-               </td>              
-               
-               <td class="text-center">[[${cartItem.value.totalPrice}]]원</td>
-             </tr>
-             </div>          
-          
+                    <div class="col-md-4" th:each="cartItem:${order.orderItems}">
+
+                        <tr>
+
+                             <td >
+                                 <em th:each="book:${bookList}" th:if="${book != null and cartItem != null and
+                                 #strings.equals(book.bookId, cartItem.value.bookId)}">[[${book.name}]]</em>
+
+                             </td>
+
+                             <td  style="text-align: center">[[${cartItem.value.quantity}]]</td>
+                             <td class="text-center" >
+                                  <span th:each="book:${bookList}"  th:if="${#strings.equals(book.bookId, cartItem.value.bookId)}">[[${book.unitPrice}]]원</span>
+                             </td>
+
+                             <td class="text-center">[[${cartItem.value.totalPrice}]]원</td>
+                        </tr>
+                    </div>
+
+
+                        <tr>
+                         <td> </td>
+                         <td> </td>
+                         <td class="text-right"><h5> <strong>총액: </strong></h5></td>
+                         <td class="text-center text-danger"><h4><strong>[[${order.grandTotal}]]</strong></h4></td>
+                        </tr>
+                 </tbody>
+              </table>
+           </div>
        
-            <tr>
-             <td> </td>
-             <td> </td>
-             <td class="text-right"><h5> <strong>총액: </strong></h5></td>
-             <td class="text-center text-danger"><h4><strong>[[${order.grandTotal}]]</strong></h4></td>
-            </tr>  
-            </tbody>           
-           </table>
-         </div>   
-       
-      <div class="container col-md-5  py-3">
+            <div class="container col-md-5  py-3">
 
-     	<a href="/BookMarket/order/orderShippingInfo"  class=" btn btn-Secondary" role="button" >이전</a> 
-            <input type="submit" class="btn btn-success" value="주문완료" />
+                <a href="/BookMarket/order/orderShippingInfo"  class=" btn btn-Secondary" role="button" >이전</a>
+                <input type="submit" class="btn btn-success" value="주문완료" />
 
-            <div th:if="${payment != null}">
-                <input type="hidden" id="merchantUid" th:value="${payment.merchantUid}">
-                <input type="hidden" id="amount" th:value="${payment.amount}">
-                <button id="btnPay" type="button">결제하기</button>
+                <div th:if="${payment != null}">
+                    <input type="hidden" id="merchantUid" th:value="${payment.merchantUid}">
+                    <input type="hidden" id="amount" th:value="${payment.amount}">
+
+                    <input type="hidden" id="orderName" th:value="${order.orderName}">
+                    <input type="hidden" id="customerName" th:value="${order.customer.name}">
+                    <input type="hidden" id="customerEmail" th:value="${order.customer.mail}">
+                    <input type="hidden" id="customerPhone" th:value="${order.customer.phone}">
+
+                </div>
+                <a href="/BookMarket/order/orderShippingInfo"  class=" btn btn-Secondary" role="button" >이전</a>
+                <button id="btnPay" type="button">결제하기(<span th:text="${order.grandTotal}"></span>원)
+                </button>
+                <a href="/BookMarket/order/orderCancelled"  class="btn btn-Secondary" role="button" >취소</a>
             </div>
-      	<a href="/BookMarket/order/orderCancelled"  class="btn btn-Secondary" role="button" >취소</a> 
-       </div>
-     </form>
+    </form>
     </div>
     <th:block th:replace="~{/module/footer}"></th:block>
    </div>
 
 </body>
-<script src="https://cdn.iamport.kr/v1/iamport.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const btn = document.getElementById("btnPay");
-  if (btn) {
-    btn.addEventListener("click", function() {
-      const merchantUid = document.getElementById("merchantUid").value;
-      const amount = document.getElementById("amount").value;
 
-      IMP.init("imp66276214");  // 포트원 계정의 가맹점 식별코드
-      IMP.request_pay({
-        pg: "kakaopay",
-        pay_method: "card",
-        merchant_uid: merchantUid,
-        name: "BookMarket 주문결제",
-        amount: amount
-      }, function(rsp) {
-        if (rsp.success) {
-          fetch('/payments/webhook', {
-            method: 'POST',
-            headers: {'Content-Type':'application/x-www-form-urlencoded'},
-            body: new URLSearchParams({
-              merchant_uid: rsp.merchant_uid,
-              imp_uid: rsp.imp_uid,
-              amount: amount
-            })
-          }).then(()=> alert('결제 완료!'));
-        } else {
-          alert('결제 실패: ' + rsp.error_msg);
-        }
-      });
-    });
-  }
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function() {
+    const btn = document.getElementById("btnPay");
+    if (btn) {
+        // 💡 [수정] IMP.init은 한 번만 호출하면 됩니다.
+        // 현재 코드에 2개 있었으므로, 하나를 선택하여 사용합니다.
+        // 가맹점 식별코드를 서버 변수로 넘기는 것이 더 안전합니다.
+        IMP.init("imp66276214");
+
+        btn.addEventListener("click", function() {
+            const merchantUid = document.getElementById("merchantUid").value;
+            const amount = document.getElementById("amount").value;
+            const customerName = document.getElementById("customerName").value;
+            const customerEmail = document.getElementById("customerEmail").value;
+            const customerPhone = document.getElementById("customerPhone").value;
+            const orderName = document.getElementById("orderName").value;
+
+            if (!merchantUid || !amount) {
+                alert("결제 정보가 부족합니다. 다시 시도해 주세요.");
+                return;
+            }
+
+            IMP.request_pay({
+                pg: "kakaopay", // PG사 선택
+                pay_method: "card", // 결제 수단
+                merchant_uid: merchantUid,
+                name: orderName,
+                amount: amount,
+                buyer_name: customerName,
+                buyer_email: customerEmail,
+                buyer_tel: customerPhone
+            }, function(rsp) {
+                if (rsp.success) {
+                    // 1. 클라이언트 검증 및 결제 확정을 위해 서버에 요청 (JSON 형식)
+                    fetch('/payments/webhook', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json' // 💡 [수정] JSON 형식으로 통일
+                        },
+                        body: JSON.stringify({
+                            merchantUid: rsp.merchant_uid,
+                            transactionId: rsp.imp_uid, // PG사 거래 고유 번호
+                            paidAmount: rsp.paid_amount
+                        })
+                    })
+                    .then(response => {
+                        // 서버의 응답 상태 코드를 확인
+                        if (!response.ok) {
+                            throw new Error('서버 결제 확정 실패');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 서버에서 결제 확정 및 DB 업데이트가 성공적으로 완료됨
+                        alert('결제가 완료되었습니다!');
+                        window.location.href = '/BookMarket/order/orderFinished?orderId=' + rsp.merchant_uid;
+                    })
+                    .catch(error => {
+                        // 서버 통신 오류 또는 서버 측 검증 실패
+                        alert(`결제 처리 중 오류 발생: ${error.message}`);
+                        // (선택 사항: 결제 취소 로직 호출)
+                    });
+
+                } else {
+                    // 결제 실패 (사용자 취소, PG사 오류 등)
+                    alert('결제 실패: ' + rsp.error_msg);
+                }
+            });
+        });
+    }
 });
+</script>
 </script>
 </html>

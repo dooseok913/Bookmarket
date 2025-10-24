@@ -33,8 +33,9 @@ public class PaymentService {
     public void confirmPaid(String merchantUid, String transactionId, BigDecimal paidAmount) {
         Payment payment = paymentRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new IllegalArgumentException("결제 내역 없음"));
-        if (payment.getAmount().compareTo(paidAmount) != 0)
+        if (payment.getAmount().compareTo(paidAmount) != 0) {
             throw new IllegalStateException("금액 불일치");
+        }
         payment.setStatus(PaymentStatus.PAID);
         payment.setTransactionId(transactionId);
         payment.setApprovedAt(LocalDateTime.now());
