@@ -34,6 +34,8 @@ public class BookmarketApplication {
 			try {
 			Address address = new Address();
 			address.setAddressname("서울시");
+			address.setCountry("Korea");       
+			address.setZipcode("12345");
 
 			Member member = new Member();
 			member.setMemberId("Admin");
