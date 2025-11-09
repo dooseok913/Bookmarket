@@ -23,11 +23,11 @@ public class Order {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id")
-    private Customer customer;
+    private Customer customer=new Customer();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name= "shipping_id")
-    private Shipping shipping;
+    private Shipping shipping=new Shipping();
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name="order_item_id")

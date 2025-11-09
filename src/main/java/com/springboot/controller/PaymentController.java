@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 public class PaymentController {
     private final PaymentService paymentService;
 
-    @PostMapping("/prepare/{orderId}")
+    @GetMapping("/prepare/{orderId}")
     public  String prepare(@PathVariable Long orderId, Model model) {
         Payment payment = paymentService.prepare(orderId);
         System.out.println("null여부 확인"+ payment);
@@ -27,11 +28,15 @@ public class PaymentController {
 
     @PostMapping("/webhook")
     @ResponseBody
-    public String webhook (@RequestParam String merchant_uid,
-                           @RequestParam String imp_uid,
-                           @RequestParam BigDecimal amount)
+    public String webhook (@RequestBody Map<String, Object> payload)
     {
-        paymentService.confirmPaid(merchant_uid, imp_uid, amount);
-        return  "OK";
+        String merchantUid = (String) payload.get("merchant_uid");
+        String impUid = (String) payload.get("imp_uid");
+        BigDecimal amount = new BigDecimal(payload.get("paidAmount").toString());
+
+        paymentService.confirmPaid(merchantUid, impUid, amount);
+        return "OK";
     }
+
+
 }

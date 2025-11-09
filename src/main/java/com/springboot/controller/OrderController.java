@@ -25,6 +25,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/order")
+
 public class OrderController {
     @Autowired
     private OrderService orderService;
@@ -52,28 +53,21 @@ public class OrderController {
             orderItem.setQuantity(item.getQuantity());
             orderItem.setTotalPrice(item.getTotalPrice());
             order.getOrderItems().put(book.getBookId(), orderItem);
-
         }
         order.setCustomer(new Customer());
-        order.setShipping(new Shipping());
+        Shipping shipping = new Shipping();
+        Address address = new Address();
+
+        address.setCountry("대한민국");
+        address.setZipcode("000000");
+
+        shipping.setAddress(address);
+        order.setShipping(shipping);
         order.setGrandTotal(cart.getGrandTotal());
 
-
-//        Shipping shipping = new Shipping();
-//        Address address = new Address();
-//        address.setCountry("대한민국");
-//        address.setZipcode("000000");
-//        shipping.setAddress(address);
-//
-//
-//        order.setShipping(shipping);
-//        order.setGrandTotal(cart.getGrandTotal());
-
-
         return  "redirect:/order/orderCustomerInfo";
-
-
     }
+
     @GetMapping("/orderCustomerInfo")
     public String requestCustomerInfoForm(Model model) {
         model.addAttribute("customer", order.getCustomer());
@@ -106,6 +100,8 @@ public class OrderController {
 
     @GetMapping("/orderConfirmation")
     public String requestConfirmation(Model model) {
+        System.out.println("orderconfirmation 겟 매핑"+order);
+        System.out.println("orderconfirmation 겟 매핑 shipping"+order.getShipping());
         model.addAttribute("bookList", listofBooks);
         model.addAttribute("order", order);
         return "orderConfirmation";
@@ -119,6 +115,7 @@ public class OrderController {
 //    }
     @PostMapping("/orderConfirmation")
     public String requestConfirmationFinished(Model model) {
+        System.out.println("orderconfirmation 포스트 매핑이 시작되었습ㄴ다. ");
         model.addAttribute("order", order);
         Order saveOrder = orderProService.save(order);
         return "redirect:/payments/prepare/"+ saveOrder.getOrderId();
@@ -126,7 +123,7 @@ public class OrderController {
 
     @GetMapping("/orderFinished")
     public String requestFinished(HttpServletRequest request , Model model) {
-        Long orderId = orderService.saveOrder(order);
+
         model.addAttribute("order", order);
         HttpSession session = request.getSession(false);
         if(session != null) {

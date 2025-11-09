@@ -17,7 +17,7 @@
 		
 	</div>	
    <div class="row align-items-md-stretch"> 
-    <form th:object="${order}" action="/BookMarket/order/orderConfirmation" method="post" class="form-horizontal">
+    <form th:object="${order}" th:action="@{/order/orderConfirmation}" method="post" class="form-horizontal">
         <div class="container  col-md-10  py-5" style="background:#fafafe">
        <div class="text-center">
           	<h1>영수증</h1>
@@ -100,7 +100,7 @@
 
                     <input type="hidden" id="orderName" th:value="${order.orderName}">
                     <input type="hidden" id="customerName" th:value="${order.customer.name}">
-                    <input type="hidden" id="customerEmail" th:value="${order.customer.mail}">
+                    <input type="hidden" id="customerEmail" th:value="${order.customer.email}">
                     <input type="hidden" id="customerPhone" th:value="${order.customer.phone}">
                     <button id="btnPay" type="button">결제하기(<span th:text="${order.grandTotal}"></span>원)
                     </button>
