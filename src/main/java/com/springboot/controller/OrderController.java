@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/order")
-
+@SessionAttributes({"order", "bookList"})
 public class OrderController {
     @Autowired
     private OrderService orderService;
@@ -36,109 +37,114 @@ public class OrderController {
     private OrderProService orderProService;
     @Autowired
     private BookService bookService;
-    Order order;
-    List<Book> listofBooks;
+
+    @ModelAttribute("order")
+    public Order createOrder() {
+        return  new Order();
+    }
+    @ModelAttribute("bookList")
+    public  List<Book> createBookList() {
+        return  new ArrayList<>();
+    }
 
 
     @GetMapping("/{cartId}")
-    public String requestCartList(@PathVariable(value = "cartId") String cartId, Model model){
+    public String requestCartList(@PathVariable(value = "cartId") String cartId,
+                                  @ModelAttribute("order") Order order,
+                                  @ModelAttribute("bookList") List<Book> listofBooks){
         Cart cart = cartService.validateCart(cartId);
-        order = new Order();
-        listofBooks = new ArrayList<Book>();
+
+
+        listofBooks.clear();
+        order.getOrderItems().clear();
+
         for(CartItem item : cart.getCartItems().values()) {
             OrderItem orderItem = new OrderItem();
             Book book =item.getBook();
             listofBooks.add(book);
+
             orderItem.setBookId(book.getBookId());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setTotalPrice(item.getTotalPrice());
             order.getOrderItems().put(book.getBookId(), orderItem);
         }
-        order.setCustomer(new Customer());
-        Shipping shipping = new Shipping();
-        Address address = new Address();
 
-        address.setCountry("대한민국");
-        address.setZipcode("000000");
+        order.getShipping().getAddress().setCountry("대한민국");
+        order.getShipping().getAddress().setZipcode("000000");
 
-        shipping.setAddress(address);
-        order.setShipping(shipping);
         order.setGrandTotal(cart.getGrandTotal());
 
         return  "redirect:/order/orderCustomerInfo";
     }
 
     @GetMapping("/orderCustomerInfo")
-    public String requestCustomerInfoForm(Model model) {
+    public String requestCustomerInfoForm(@ModelAttribute("order") Order order ,Model model) {
         model.addAttribute("customer", order.getCustomer());
         return "orderCustomerInfo";
 
     }
     @PostMapping ("/orderCustomerInfo")
-    public String requestCustomerInfo(@ModelAttribute Customer customer, Model model) {
+    public String requestCustomerInfo(@ModelAttribute Customer customer, @ModelAttribute("order") Order order) {
         order.setCustomer(customer);
         return "redirect:/order/orderShippingInfo";
-
     }
+
     @GetMapping("/orderShippingInfo")
-    public String requestShippingInfoForm(Model model) {
+    public String requestShippingInfoForm(@ModelAttribute("order") Order order ,Model model) {
         model.addAttribute("shipping", order.getShipping());
         return "orderShippingInfo";
     }
     @PostMapping("/orderShippingInfo")
-    public String requestShippingInfo(@Valid @ModelAttribute Shipping shipping, BindingResult bindingResult , Model model) {
+    public String requestShippingInfo(@Valid @ModelAttribute Shipping shipping,
+                                      BindingResult bindingResult ,
+                                      @ModelAttribute("order") Order order ,
+                                      Model model) {
         if(bindingResult.hasErrors())
             return  "orderShippingInfo";
+
         System.out.println("coutnry :  " + shipping.getAddress().getCountry());
         System.out.println("zip code :  " + shipping.getAddress().getZipcode());
 
         order.setShipping(shipping);
-        model.addAttribute("order", order);
         System.out.println("requestShippingInfo 까지는 왔다.");
         return "redirect:/order/orderConfirmation";
     }
 
     @GetMapping("/orderConfirmation")
-    public String requestConfirmation(Model model) {
-        System.out.println("orderconfirmation 겟 매핑"+order);
-        System.out.println("orderconfirmation 겟 매핑 shipping"+order.getShipping());
+    public String requestConfirmation(@ModelAttribute("order") Order order,
+                                        @ModelAttribute("bookList") List<Book> listofBooks,
+                                        Model model) {
+        System.out.println("orderconfirmation 겟 매핑 order"+order);
+        System.out.println("orderconfirmation 겟 매핑 order.shipping"+order.getShipping());
+        System.out.println("orderconfirmation 겟 매핑 shipping.name"+order.getShipping().getName());
         model.addAttribute("bookList", listofBooks);
         model.addAttribute("order", order);
         return "orderConfirmation";
     }
 
-//    @PostMapping("/orderConfirmation")
-//    public String requestConfirmationFinished(Model model) {
-//        model.addAttribute("order", order);
-//        orderService.saveOrder(order);
-//        return "redirect:/order/orderFinished";
-//    }
     @PostMapping("/orderConfirmation")
-    public String requestConfirmationFinished(Model model) {
+    public String requestConfirmationFinished(@ModelAttribute("order") Order order,
+                                            Model model) {
         System.out.println("orderconfirmation 포스트 매핑이 시작되었습ㄴ다. ");
-        model.addAttribute("order", order);
         Order saveOrder = orderProService.save(order);
         return "redirect:/payments/prepare/"+ saveOrder.getOrderId();
     }
 
     @GetMapping("/orderFinished")
-    public String requestFinished(HttpServletRequest request , Model model) {
+    public String requestFinished(@ModelAttribute("order") Order order,
+                                  SessionStatus sessionStatus,
+                                  Model model) {
 
         model.addAttribute("order", order);
-        HttpSession session = request.getSession(false);
-        if(session != null) {
-            session.invalidate();
-        }
-        return "orderFinished";
+        sessionStatus.setComplete();
 
+        return "orderFinished";
     }
 
     @GetMapping("/orderCancelled")
-    public  String requestCancelled(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if(session != null) {
-            session.invalidate();
-        }
+    public  String requestCancelled(SessionStatus sessionStatus) {
+
+        sessionStatus.setComplete();
         return "orderCancelled";
     }
 

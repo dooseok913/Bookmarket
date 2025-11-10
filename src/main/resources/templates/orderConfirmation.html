@@ -26,13 +26,13 @@
        	    <div class="col-md-6  py-3" >
            
              <strong>배송 주소</strong><br> 
-              성명 :  [[${order.shipping.name}]]<br>
-            우편번호 :  [[${order.shipping.address.zipcode}]]<br>
-            주소 :  [[${order.shipping.address.addressname}]]  [[${order.shipping.address.detailname}]]  ([[${order.shipping.address.country}]])<br>
+              성명 :  [[${order.shipping?.name}]]<br>
+            우편번호 :  [[${order.shipping?.address?.zipcode}]]<br>
+            주소 :  [[${order.shipping?.address?.addressname}]]  [[${order.shipping?.address?.detailname}]]  ([[${order.shipping?.address?.country}]])<br>
            
           </div>
            <div class="col-md-6 text-right py-3">
-             <p> <em>배송일: [[${order.shipping.date}]]</em></p>
+             <p> <em>배송일: [[${order.shipping?.date}]]</em></p>
           </div>
       
        </div>
@@ -40,10 +40,10 @@
           <div class="col-md-6 py-2">            
                  <address> 
               <strong>청구주소</strong> <br>
-               성명 : [[${order.customer.name}]]<br>
-               우편번호 :[[${order.customer.address.zipcode}]]<br>
-               주소 : [[${order.customer.address.addressname}]] [[${order.customer.address.detailname}]] ([[${order.customer.address.country}]])<br>
-                  HP : [[${order.customer.phone}]]<br>
+               성명 : [[${order.customer?.name}]]<br>
+               우편번호 :[[${order.customer?.address?.zipcode}]]<br>
+               주소 : [[${order.customer?.address?.addressname}]] [[${order.customer?.address?.detailname}]] ([[${order.customer?.address?.country}]])<br>
+                  HP : [[${order.customer?.phone}]]<br>
              </address>       
           </div>
        </div>  
