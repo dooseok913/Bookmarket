@@ -1,192 +1,239 @@
-<html>
-<head> 	
-	<title>주문 정보</title>
-	<link href="/BookMarket/css/bootstrap.min.css" rel="stylesheet" >
-    <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>주문 정보</title>
+    <link href="/BookMarket/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 아임포트 라이브러리 -->
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
 </head>
 <body>
 <div class="container py-4">
     <th:block th:replace="~{/module/header}"></th:block>
 
+    <div class="p-5 mb-4 bg-body-tertiary rounded-3">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold">주문 정보</h1>
+            <p class="col-md-8 fs-4">BookMarket</p>
+        </div>
+    </div>
 
-	<div class="p-5 mb-4 bg-body-tertiary rounded-3">
- 		<div class="container-fluid py-5">
-			<h1 class="display-5 fw-bold">주문 정보 </h1>
-			<p class="col-md-8 fs-4">BookMarket</p>       
-		</div>
-		
-	</div>	
-   <div class="row align-items-md-stretch"> 
-    <form th:object="${order}" th:action="@{/order/orderConfirmation}" method="post" class="form-horizontal">
-        <div class="container  col-md-10  py-5" style="background:#fafafe">
-       <div class="text-center">
-          	<h1>영수증</h1>
-       </div>   
-       <div class="row  text-left">
-       	    <div class="col-md-6  py-3" >
-           
-             <strong>배송 주소</strong><br> 
-              성명 :  [[${order.shipping?.name}]]<br>
-            우편번호 :  [[${order.shipping?.address.zipcode}]]<br>
-            주소 :  [[${order.shipping?.address?.addressname}]]  [[${order.shipping?.address?.detailname}]]  ([[${order.shipping?.address?.country}]])<br>
-           
-          </div>
-           <div class="col-md-6 text-right py-3">
-             <p> <em>배송일: [[${order.shipping?.date}]]</em></p>
-          </div>
-      
-       </div>
-      <div class="row text-left">
-          <div class="col-md-6 py-2">            
-                 <address> 
-              <strong>청구주소</strong> <br>
-               성명 : [[${order.customer?.name}]]<br>
-               우편번호 :[[${order.customer?.address?.zipcode}]]<br>
-               주소 : [[${order.customer?.address?.addressname}]] [[${order.customer?.address?.detailname}]] ([[${order.customer?.address?.country}]])<br>
-                  HP : [[${order.customer?.phone}]]<br>
-             </address>       
-          </div>
-       </div>  
-      
-           <div class="row  py-2">
-              <table class="table table-hover">
-                 <thead>
-                   <tr><th>도서</th>
-                      <th>수량</th>
-                      <th class="text-center">가격</th>
-                       <th class="text-center">소계</th>
-                    </tr>
-                 </thead>
-                 <tbody>
-
-                    <div class="col-md-4" th:each="cartItem:${order.orderItems}">
-
-                        <tr>
-
-                             <td >
-                                 <em th:each="book:${bookList}" th:if="${book != null and cartItem != null and
-                                 #strings.equals(book.bookId, cartItem.value.bookId)}">[[${book.name}]]</em>
-
-                             </td>
-
-                             <td  style="text-align: center">[[${cartItem.value.quantity}]]</td>
-                             <td class="text-center" >
-                                  <span th:each="book:${bookList}"  th:if="${#strings.equals(book.bookId, cartItem.value.bookId)}">[[${book.unitPrice}]]원</span>
-                             </td>
-
-                             <td class="text-center">[[${cartItem.value.totalPrice}]]원</td>
-                        </tr>
-                    </div>
-
-
-                        <tr>
-                         <td> </td>
-                         <td> </td>
-                         <td class="text-right"><h5> <strong>총액: </strong></h5></td>
-                         <td class="text-center text-danger"><h4><strong>[[${order.grandTotal}]]</strong></h4></td>
-                        </tr>
-                 </tbody>
-              </table>
-           </div>
-       
-            <div class="container col-md-5  py-3">
-
-                <a href="/BookMarket/order/orderShippingInfo"  class=" btn btn-Secondary" role="button" >이전</a>
-                <input type="submit" class="btn btn-success" value="주문완료" />
-
-                <div th:if="${payment != null}">
-                    <input type="hidden" id="merchantUid" th:value="${payment.merchantUid}">
-                    <input type="hidden" id="amount" th:value="${payment.amount}">
-
-<!--                    <input type="hidden" id="orderName" th:value="${order.orderName}">-->
-                    <input type="hidden" id="customerName" th:value="${order.customer.name}">
-                    <input type="hidden" id="customerEmail" th:value="${order.customer.email}">
-                    <input type="hidden" id="customerPhone" th:value="${order.customer.phone}">
-                    <button id="btnPay" type="button">결제하기(<span th:text="${order.grandTotal}"></span>원)
-                    </button>
+    <div class="row align-items-md-stretch">
+        <form th:action="@{/order/orderConfirmation}" method="post" class="form-horizontal">
+            <div class="container col-md-10 py-5" style="background:#fafafe">
+                <div class="text-center">
+                    <h1>영수증</h1>
                 </div>
 
+                <div class="row text-left">
+                    <div class="col-md-6 py-3">
+                        <strong>배송 주소</strong><br>
+                        성명: <span th:text="${order.shipping?.name}">-</span><br>
+                        우편번호: <span th:text="${order.shipping?.address?.zipcode}">-</span><br>
+                        주소: <span th:text="${order.shipping?.address?.addressname}">-</span>
+                        <span th:text="${order.shipping?.address?.detailname}">-</span>
+                        (<span th:text="${order.shipping?.address?.country}">-</span>)<br>
+                    </div>
+                    <div class="col-md-6 text-right py-3">
+                        <p><em>배송일: <span th:text="${order.shipping?.date}">-</span></em></p>
+                    </div>
+                </div>
 
-                <a href="/BookMarket/order/orderCancelled"  class="btn btn-Secondary" role="button" >취소</a>
+                <div class="row text-left">
+                    <div class="col-md-6 py-2">
+                        <address>
+                            <strong>청구주소</strong><br>
+                            성명: <span th:text="${order.customer?.name}">-</span><br>
+                            우편번호: <span th:text="${order.customer?.address?.zipcode}">-</span><br>
+                            주소: <span th:text="${order.customer?.address?.addressname}">-</span>
+                            <span th:text="${order.customer?.address?.detailname}">-</span>
+                            (<span th:text="${order.customer?.address?.country}">-</span>)<br>
+                            HP: <span th:text="${order.customer?.phone}">-</span><br>
+                        </address>
+                    </div>
+                </div>
+
+                <div class="row py-2">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>도서</th>
+                            <th>수량</th>
+                            <th class="text-center">가격</th>
+                            <th class="text-center">소계</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="cartItem : ${order.orderItems}">
+                            <td>
+                                <em th:each="book : ${bookList}"
+                                    th:if="${book != null and cartItem != null and #strings.equals(book.bookId, cartItem.value.bookId)}"
+                                    th:text="${book.name}">도서명</em>
+                            </td>
+                            <td style="text-align: center" th:text="${cartItem.value.quantity}">1</td>
+                            <td class="text-center">
+								<span th:each="book : ${bookList}"
+                      th:if="${#strings.equals(book.bookId, cartItem.value.bookId)}"
+                      th:text="${book.unitPrice} + '원'">0원</span>
+                            </td>
+                            <td class="text-center" th:text="${cartItem.value.totalPrice} + '원'">0원</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right"><h5><strong>총액:</strong></h5></td>
+                            <td class="text-center text-danger">
+                                <h4><strong><span th:text="${order.grandTotal}">0</span>원</strong></h4>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="container col-md-5 py-3">
+                    <a href="/BookMarket/order/orderShippingInfo" class="btn btn-secondary" role="button">이전</a>
+
+                    <!-- payment가 없으면 주문완료 버튼 -->
+                    <button th:if="${payment == null}" type="submit" class="btn btn-success">주문완료</button>
+
+                    <!-- payment가 있으면 결제하기 버튼 -->
+                    <div th:if="${payment != null}" style="display: inline-block;">
+                        <button id="btnPay" type="button" class="btn btn-success">
+                            결제하기(<span th:text="${order.grandTotal}">0</span>원)
+                        </button>
+                    </div>
+
+                    <a href="/BookMarket/order/orderCancelled" class="btn btn-secondary" role="button">취소</a>
+                </div>
             </div>
-    </form>
+        </form>
+
+        <th:block th:replace="~{/module/footer}"></th:block>
     </div>
-    <th:block th:replace="~{/module/footer}"></th:block>
-   </div>
+</div>
 
-</body>
+<!-- 결제 관련 데이터를 JavaScript 변수로 전달 -->
+<script th:if="${payment != null}" th:inline="javascript">
+    // Thymeleaf에서 JavaScript 변수로 데이터 전달
+    var paymentData = {
+        merchantUid: /*[[${payment.merchantUid}]]*/ '',
+        amount: /*[[${payment.amount}]]*/ 0,
+        orderName: /*[[${order.customer?.name}]]*/ '상품명',
+        customerName: /*[[${order.customer?.name}]]*/ '',
+        customerEmail: /*[[${order.customer?.email}]]*/ '',
+        customerPhone: /*[[${order.customer?.phone}]]*/ ''
+    };
 
-<script th:inline="javascript">
+    console.log("=== 결제 데이터 로드 ===");
+    console.log("MerchantUid:", paymentData.merchantUid);
+    console.log("Amount:", paymentData.amount);
+    console.log("CustomerName:", paymentData.customerName);
+</script>
+
+<!-- 결제 스크립트 -->
+<script th:if="${payment != null}">
+console.log("=== 결제 스크립트 로드 시작 ===");
+
+// DOM이 완전히 로드된 후 실행
 document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOM 로드 완료");
+
     const btn = document.getElementById("btnPay");
-    if (btn) {
-        // 💡 [수정] IMP.init은 한 번만 호출하면 됩니다.
-        // 현재 코드에 2개 있었으므로, 하나를 선택하여 사용합니다.
-        // 가맹점 식별코드를 서버 변수로 넘기는 것이 더 안전합니다.
-        IMP.init("imp66276214");
+    console.log("버튼 요소:", btn);
 
-        btn.addEventListener("click", function() {
-            const merchantUid = document.getElementById("merchantUid").value;
-            const amount = document.getElementById("amount").value;
-            const customerName = document.getElementById("customerName").value;
-            const customerEmail = document.getElementById("customerEmail").value;
-            const customerPhone = document.getElementById("customerPhone").value;
-            const orderName = document.getElementById("orderName").value;
-
-            if (!merchantUid || !amount) {
-                alert("결제 정보가 부족합니다. 다시 시도해 주세요.");
-                return;
-            }
-
-            IMP.request_pay({
-                pg: "kakaopay", // PG사 선택
-                pay_method: "card", // 결제 수단
-                merchant_uid: merchantUid,
-                name: orderName,
-                amount: amount,
-                buyer_name: customerName,
-                buyer_email: customerEmail,
-                buyer_tel: customerPhone
-            }, function(rsp) {
-                if (rsp.success) {
-                    // 1. 클라이언트 검증 및 결제 확정을 위해 서버에 요청 (JSON 형식)
-                    fetch('/payments/webhook', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json' // 💡 [수정] JSON 형식으로 통일
-                        },
-                        body: JSON.stringify({
-                            merchantUid: rsp.merchant_uid,
-                            transactionId: rsp.imp_uid, // PG사 거래 고유 번호
-                            paidAmount: rsp.paid_amount
-                        })
-                    })
-                    .then(response => {
-                        // 서버의 응답 상태 코드를 확인
-                        if (!response.ok) {
-                            throw new Error('서버 결제 확정 실패');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // 서버에서 결제 확정 및 DB 업데이트가 성공적으로 완료됨
-                        alert('결제가 완료되었습니다!');
-                        window.location.href = '/BookMarket/order/orderFinished?orderId=' + rsp.merchant_uid;
-                    })
-                    .catch(error => {
-                        // 서버 통신 오류 또는 서버 측 검증 실패
-                        alert(`결제 처리 중 오류 발생: ${error.message}`);
-                        // (선택 사항: 결제 취소 로직 호출)
-                    });
-
-                } else {
-                    // 결제 실패 (사용자 취소, PG사 오류 등)
-                    alert('결제 실패: ' + rsp.error_msg);
-                }
-            });
-        });
+    if (!btn) {
+        console.error("btnPay 버튼을 찾을 수 없습니다!");
+        return;
     }
+
+    // IMP 객체 확인
+    if (typeof IMP === 'undefined') {
+        console.error("아임포트(IMP) 라이브러리가 로드되지 않았습니다!");
+        alert("결제 모듈 로딩 실패. 페이지를 새로고침해주세요.");
+        return;
+    }
+
+    console.log("IMP 라이브러리 로드 완료");
+
+    // 아임포트 초기화
+    IMP.init("imp66276214");
+    console.log("IMP 초기화 완료");
+
+    // PG 설정 확인
+    console.log("현재 PG 설정: html5_inicis.INIpayTest (테스트 모드)");
+
+    // 결제하기 버튼 클릭 이벤트
+    btn.addEventListener("click", function() {
+        console.log("=== 결제하기 버튼 클릭 ===");
+        console.log("결제 데이터:", paymentData);
+
+        if (!paymentData.merchantUid || !paymentData.amount) {
+            alert("결제 정보가 부족합니다. 다시 시도해 주세요.");
+            console.error("결제 정보 부족:", paymentData);
+            return;
+        }
+
+        console.log("아임포트 결제 요청 시작...");
+
+        // 결제 요청 데이터 확인
+        const paymentRequest = {
+            pg: "uplus.tlgdacomxpay",
+            pay_method: "card",
+            merchant_uid: paymentData.merchantUid,
+            name: "도서 주문",
+            amount: paymentData.amount,
+            buyer_name: paymentData.customerName,
+            buyer_email: paymentData.customerEmail,
+            buyer_tel: paymentData.customerPhone
+        };
+        console.log("결제 요청 파라미터:", paymentRequest);
+
+        IMP.request_pay(paymentRequest, function(rsp) {
+            console.log("=== 아임포트 응답 수신 ===");
+            console.log("응답 데이터:", rsp);
+
+            if (rsp.success) {
+                console.log("결제 성공! 서버 검증 시작...");
+
+                // 서버에 결제 검증 요청
+                fetch('/BookMarket/payments/webhook', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        merchantUid: rsp.merchant_uid,
+                        transactionId: rsp.imp_uid,
+                        paidAmount: rsp.paid_amount
+                    })
+                })
+                .then(response => {
+                    console.log("서버 응답 상태:", response.status);
+                    if (!response.ok) {
+                        throw new Error('서버 결제 확정 실패');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("서버 검증 완료:", data);
+                    alert('결제가 완료되었습니다!');
+                    window.location.href = '/BookMarket/order/orderFinished?orderId=' + rsp.merchant_uid;
+                })
+                .catch(error => {
+                    console.error("결제 처리 중 오류:", error);
+                    alert('결제 처리 중 오류가 발생했습니다: ' + error.message);
+                });
+
+            } else {
+                console.log("결제 실패:", rsp.error_msg);
+                alert('결제 실패: ' + rsp.error_msg);
+            }
+        });
+    });
+
+    console.log("=== 결제 이벤트 리스너 등록 완료 ===");
 });
 </script>
 
+</body>
 </html>

@@ -67,18 +67,22 @@ public class PaymentController {
             System.out.println("=== Webhook 수신 ===");
             System.out.println("Payload: " + payload);
 
-            String merchantUid = (String) payload.get("merchant_uid");
-            String impUid = (String) payload.get("imp_uid");
-            BigDecimal amount = new BigDecimal(payload.get("paidAmount").toString());
+            // JavaScript에서 보내는 필드명과 일치
+            String merchantUid = (String) payload.get("merchantUid");
+            String transactionId = (String) payload.get("transactionId");
+            BigDecimal paidAmount = new BigDecimal(payload.get("paidAmount").toString());
 
-            paymentService.confirmPaid(merchantUid, impUid, amount);
+            System.out.println("MerchantUid: " + merchantUid);
+            System.out.println("TransactionId: " + transactionId);
+            System.out.println("PaidAmount: " + paidAmount);
+
+            paymentService.confirmPaid(merchantUid, transactionId, paidAmount);
+
             return Map.of("status", "success", "message", "결제 완료");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println("Webhook 에러: " + e.getMessage());
             e.printStackTrace();
             return Map.of("status", "error", "message", e.getMessage());
         }
-
-
     }
 }
