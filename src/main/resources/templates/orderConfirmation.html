@@ -27,7 +27,7 @@
            
              <strong>배송 주소</strong><br> 
               성명 :  [[${order.shipping?.name}]]<br>
-            우편번호 :  [[${order.shipping?.address?.zipcode}]]<br>
+            우편번호 :  [[${order.shipping?.address.zipcode}]]<br>
             주소 :  [[${order.shipping?.address?.addressname}]]  [[${order.shipping?.address?.detailname}]]  ([[${order.shipping?.address?.country}]])<br>
            
           </div>
@@ -98,7 +98,7 @@
                     <input type="hidden" id="merchantUid" th:value="${payment.merchantUid}">
                     <input type="hidden" id="amount" th:value="${payment.amount}">
 
-                    <input type="hidden" id="orderName" th:value="${order.orderName}">
+<!--                    <input type="hidden" id="orderName" th:value="${order.orderName}">-->
                     <input type="hidden" id="customerName" th:value="${order.customer.name}">
                     <input type="hidden" id="customerEmail" th:value="${order.customer.email}">
                     <input type="hidden" id="customerPhone" th:value="${order.customer.phone}">
@@ -188,5 +188,5 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 </script>
-</script>
+
 </html>

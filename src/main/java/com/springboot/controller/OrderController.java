@@ -105,7 +105,13 @@ public class OrderController {
         System.out.println("coutnry :  " + shipping.getAddress().getCountry());
         System.out.println("zip code :  " + shipping.getAddress().getZipcode());
 
-        order.setShipping(shipping);
+        order.getShipping().setName(shipping.getName());
+        order.getShipping().setDate(shipping.getDate());
+        order.getShipping().getAddress().setCountry(shipping.getAddress().getCountry());
+        order.getShipping().getAddress().setZipcode(shipping.getAddress().getZipcode());
+        order.getShipping().getAddress().setAddressname(shipping.getAddress().getAddressname());
+        order.getShipping().getAddress().setDetailname(shipping.getAddress().getDetailname());
+
         System.out.println("requestShippingInfo 까지는 왔다.");
         return "redirect:/order/orderConfirmation";
     }
